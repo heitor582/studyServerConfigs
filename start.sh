@@ -2,7 +2,7 @@
 
 cd ˜/scripts/studyServerConfigs
 
-docker-compose -f docker-compose.initial.yml up -d
+docker-compose up --build -d
 
 echo "Waiting for services to become healthy..."
 
@@ -31,9 +31,8 @@ check_health() {
 }
 
 # Check the health of services
-check_health "LocalStack" "http://localhost:4566/health"
-check_health "Traefik" "http://localhost:80/health"
 check_health "Grafana" "http://localhost:3000/health"
+check_health "Traefik" "http://localhost:80/health"
 
 # You can add more services and their health check endpoints as needed
 
