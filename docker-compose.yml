@@ -1,39 +1,6 @@
-version: '3.8'
+version: "3.8"
 
 services:
-  traefik:
-    image: traefik
-    container_name: traefik
-    restart: always
-    ports:
-      - "80:80"
-      - "8089:8080"
-      - "443:443"
-    networks:
-      - traefik_network
-    depends_on:
-      - grafana
-      - registry
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8089"] 
-      interval: 10s           
-      timeout: 5s             
-      retries: 3  
-    command:
-      - "--api.insecure=true"  # Enable insecure API (for demo purposes, secure this in production)
-      - "--api.dashboard=true"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=true"
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.websecure.address=:443"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.traefik.rule=Host(`traefik.server.com`)"
-      - "traefik.http.routers.traefik.entrypoints=web"
-      - "traefik.http.routers.traefik.service=api@internal"
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock"
-
   grafana:
     image: grafana/grafana
     container_name: grafana
@@ -47,13 +14,6 @@ services:
       interval: 10s           
       timeout: 5s             
       retries: 3 
-    networks:
-      - traefik_network
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.grafana.rule=Host(`grafana.server.com`)"
-      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
-      - "traefik.http.routers.grafana.tls=true"
     volumes:
       - grafana_data:/var/lib/grafana
   
@@ -63,26 +23,28 @@ services:
     restart: on-failure
     ports:
       - "5000:5000"
-    networks:
-      - traefik_network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000"] 
       interval: 10s           
       timeout: 5s             
       retries: 3  
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.registry.rule=Host(`registry.server.com`)"
-      - "traefik.http.services.registry.loadbalancer.server.port=5000"
-      - "traefik.http.routers.registry.tls=true"
     volumes:
       - registry_data:/var/lib/registry
 
+  portainer:
+    image: portainer/portainer-ce:latest
+    ports:
+      - 9443:9443
+    volumes:
+      - portainer_data:/portainer_data
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped  
+
 networks:
-  traefik_network:
-    name: traefik_network
+  default:
     driver: bridge
 
 volumes:
   grafana_data:
   registry_data:
+  portainer_data:
