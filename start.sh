@@ -32,7 +32,6 @@ check_health() {
 
 # Check the health of services
 check_health "Grafana" "http://localhost:3000/health"
-check_health "Traefik" "http://localhost:80/health"
 
 # You can add more services and their health check endpoints as needed
 

@@ -41,7 +41,8 @@ services:
     restart: unless-stopped  
 
 networks:
-  default:
+  server-network:
+    name: server-network
     driver: bridge
 
 volumes:
