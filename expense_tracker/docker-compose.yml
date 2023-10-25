@@ -10,7 +10,7 @@ services:
     depends_on:
       - expense_tracker_postgres
     env_file:
-      - ./expense_tracker/.env
+      - .env
 
   expense_tracker_postgres:
     image: postgres
@@ -18,7 +18,7 @@ services:
     ports:
       - "5432:5432"
     env_file:
-      - ./expense_tracker/.env
+      - .env
     volumes:
       - expense_tracker_postgres_data:/var/lib/postgresql/data
 
