@@ -1,0 +1,30 @@
+version: '3.8'
+services:
+  expense_tracker:
+    image: localhost:5000/heitor582/expense_tracker:latest
+    deploy:
+      replicas: 3
+      endpoint_mode: vip
+    ports:
+      - "8080-8082:8080"
+    depends_on:
+      - expense_tracker_postgres
+    env_file:
+      - ./expense_tracker/.env
+
+  expense_tracker_postgres:
+    image: postgres
+    container_name: expense_tracker_postgres
+    ports:
+      - "5432:5432"
+    env_file:
+      - ./expense_tracker/.env
+    volumes:
+      - expense_tracker_postgres_data:/var/lib/postgresql/data
+
+networks:
+  server-network:
+    external: true
+
+volumes:
+  expense_tracker_postgres_data:
