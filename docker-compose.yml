@@ -6,7 +6,7 @@ services:
     container_name: grafana
     restart: on-failure
     ports:
-      - "3000:3000"
+      - 3000:3000
     networks:
      - server-network
     env_file: 
@@ -24,7 +24,7 @@ services:
     container_name: registry
     restart: on-failure
     ports:
-      - "5000:5000"
+      - 5000:5000
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000"] 
       interval: 10s           

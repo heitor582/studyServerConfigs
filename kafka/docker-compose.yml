@@ -1,0 +1,71 @@
+version: "3.8"
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper
+    env_file:
+      - .env
+    networks:
+     - kafka-network
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "9094:9094"
+    env_file:
+      - .env
+    networks:
+     - kafka-network
+
+  kafka_control_center:
+    image: confluentinc/cp-enterprise-control-center:7.5.0
+    container_name: kafka_control_center
+    depends_on:
+      - kafka
+      - kafka_connect
+    ports:
+      - "9021:9021"
+    env_file:
+      - .env
+    networks:
+     - kafka-network
+  
+  kafka_connect:
+    image: confluentinc/cp-kafka-connect-base:latest
+    container_name: kafka_connect
+    ports:
+      - 8083:8083
+    depends_on:
+      - zookeeper
+      - kafka
+    env_file:
+      - .env
+    volumes:
+      - $PWD/data:/data
+      - ./producers/debezium-connector-postgresql/:/usr/share/confluent-hub-components/debezium-debezium-connector-postgresql/"
+    command:
+      - bash
+      - -c
+      - |
+        echo "Installing Connector"
+        #confluent-hub install --no-prompt debezium/debezium-connector-postgresql:latest
+        wget https://repo1.maven.org/maven2/io/debezium/debezium-connector-postgres/2.4.1.Final/debezium-connector-postgres-2.4.1.Final-plugin.tar.gz &&\
+        tar -xf debezium-connector-postgres-2.4.1.Final-plugin.tar.gz &&\
+        mv debezium-connector-postgres /usr/share/confluent-hub-components
+        #
+        echo "Launching Kafka Connect worker"
+        /etc/confluent/docker/run &
+        #        
+        sleep infinity
+    networks:
+     - kafka-network
+
+networks:
+  kafka-network:
+    name: kafka-network
+    driver: bridge

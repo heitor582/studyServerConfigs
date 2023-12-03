@@ -6,17 +6,27 @@ services:
       replicas: 3
       endpoint_mode: vip
     ports:
-      - "8080-8082:8080"
-    depends_on:
-      - expense_tracker_postgres
+      - 8090-8092:8080
+    depends_on: [expense_tracker_postgres]
+    networks:
+     - server-network
+     - kafka-network
     env_file:
       - .env
 
   expense_tracker_postgres:
     image: postgres
     container_name: expense_tracker_postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     ports:
-      - "5432:5432"
+      - 5432:5432
+    networks:
+     - server-network
+     - kafka-network
     env_file:
       - .env
     volumes:
@@ -24,6 +34,8 @@ services:
 
 networks:
   server-network:
+    external: true
+  kafka-network:
     external: true
 
 volumes:
