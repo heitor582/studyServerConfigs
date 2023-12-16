@@ -7,7 +7,7 @@ services:
       endpoint_mode: vip
     ports:
       - 8090-8092:8080
-    depends_on: [expense_tracker_postgres]
+    depends_on: [expense_tracker_postgres, rabbitmq]
     networks:
      - server-network
      - kafka-network

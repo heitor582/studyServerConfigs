@@ -42,6 +42,19 @@ services:
       - portainer_data:/portainer_data
       - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped  
+  
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+      - ./rabbitmq/definitions.json:/etc/rabbitmq/definitions.json
+      - ./rabbitmq/rabbitmq.config:/etc/rabbitmq/rabbitmq.config
+    networks:
+     - server-network
 
 networks:
   server-network:
@@ -52,3 +65,4 @@ volumes:
   grafana_data:
   registry_data:
   portainer_data:
+  rabbitmq_data:
